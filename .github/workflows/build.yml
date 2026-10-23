@@ -18,7 +18,11 @@ jobs:
         with:
           package: luci-app-cloudflarespeedtest
           sdk-url: https://archive.openwrt.org/releases/21.02.0/targets/x86/64/openwrt-sdk-21.02.0-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar.xz
-          snapsdk-url: https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-sdk-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+          # profiles.json no longer carries an "sdk" map, so keep the
+          # auto-resolver disabled and pin the snapshot archive explicitly
+          # (rotate the gcc version whenever the old one 404s)
+          snapsdk-profiles-url: ''
+          snapsdk-url: https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-sdk-x86-64_gcc-14.4.0_musl.Linux-x86_64.tar.zst
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
