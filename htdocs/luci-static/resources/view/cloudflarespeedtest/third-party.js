@@ -112,13 +112,17 @@ return view.extend({
 
 		o = s.taboption('dnstab', form.ListValue, 'DNS_type', _('DNS Type'));
 		o.value('aliyun', _('Alibaba Cloud DNS'));
+		o.value('cloudflare', _('Cloudflare DNS'));
+		o.default = 'aliyun';
 		o.depends('DNS_enabled', '1');
 
-		o = s.taboption('dnstab', form.Value, 'app_key', _('Access Key ID'));
+		o = s.taboption('dnstab', form.Value, 'app_key', _('Access Key ID'),
+			_('Alibaba Cloud: Access Key ID. Cloudflare: account e-mail when using the Global API Key, or leave empty when using an API Token'));
 		o.rmempty = true;
 		o.depends('DNS_enabled', '1');
 
-		o = s.taboption('dnstab', form.Value, 'app_secret', _('Access Key Secret'));
+		o = s.taboption('dnstab', form.Value, 'app_secret', _('Access Key Secret'),
+			_('Alibaba Cloud: Access Key Secret. Cloudflare: API Token or Global API Key'));
 		o.rmempty = true;
 		o.password = true;
 		o.depends('DNS_enabled', '1');
@@ -138,13 +142,19 @@ return view.extend({
 		o.value('telecom', _('telecom'));
 		o.value('unicom', _('unicom'));
 		o.value('mobile', _('mobile'));
-		o.depends('DNS_enabled', '1');
+		o.depends({ DNS_enabled: '1', DNS_type: 'aliyun' });
 		o.default = 'telecom';
 
-		o = s.taboption('dnstab', form.Value, 'AliDNS_ip_count', _('AliDNS IP Count'));
+		o = s.taboption('dnstab', form.Value, 'AliDNS_ip_count', _('DNS IP Count'));
 		o.datatype = 'uinteger';
 		o.default = '1';
 		o.depends('DNS_enabled', '1');
+
+		o = s.taboption('dnstab', form.Flag, 'cf_proxied', _('Cloudflare Proxy'),
+			_('Enable the orange cloud so the record is proxied by Cloudflare'));
+		o.rmempty = true;
+		o.default = '0';
+		o.depends('DNS_type', 'cloudflare');
 
 		s.tab('mosdns', _('MosDNS'));
 		o = s.taboption('mosdns', form.Flag, 'MosDNS_enabled', _('MosDNS Enabled'));

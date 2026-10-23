@@ -14,6 +14,7 @@ This project is a fork of [mingxiaoyu/luci-app-cloudflarespeedtest](https://gith
 ## Features
 
 *   **Auto Speed Test**: Periodically or manually test Cloudflare IPs to find the best one.
+*   **DDNS Integration**: Write the best IPs to Alibaba Cloud DNS or Cloudflare DNS (API Token / Global API Key, optional proxied records).
 *   **Proxy Integration**: Automatically update the best IP to SSR+, Passwall, MosDNS, astra-dns, and other proxy or DNS tools.
 *   **Visual Charts**: View history charts for latency and download speed trends.
 *   **Auto Core Download**: The package does not contain the core binary; it downloads automatically on the first run, reducing the package size.

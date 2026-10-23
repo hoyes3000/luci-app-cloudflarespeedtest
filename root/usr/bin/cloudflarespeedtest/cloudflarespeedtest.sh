@@ -676,26 +676,36 @@ function restart_app(){
 
 function alidns_ip(){
     if [ "x${DNS_enabled}" == "x1" ] ;then
-        get_servers_config "DNS_type" "app_key" "app_secret" "main_domain" "sub_domain" "line" "AliDNS_ip_count"
-        if [ "x${DNS_type}" == "xaliyun" ] ;then
-            count=1
-            case "$AliDNS_ip_count" in
-                ''|*[!0-9]*) count=1 ;;
-                *) [ "$AliDNS_ip_count" -gt 1 ] && count=$AliDNS_ip_count ;;
-            esac
+        get_servers_config "DNS_type" "app_key" "app_secret" "main_domain" "sub_domain" "line" "AliDNS_ip_count" "cf_proxied"
+        count=1
+        case "$AliDNS_ip_count" in
+            ''|*[!0-9]*) count=1 ;;
+            *) [ "$AliDNS_ip_count" -gt 1 ] && count=$AliDNS_ip_count ;;
+        esac
 
-            bestips=$(sed -n "2,$((count + 1))p" $IP_FILE | grep -v '^#' | awk -F, '{print $1}' | sed '/^$/d' | tr '\n' ' ')
-            first_dns_ip=$(echo "$bestips" | awk '{print $1}')
-            case "$first_dns_ip" in
-                *:*) bestip_is_ipv6=1 ;;
-                *) bestip_is_ipv6=0 ;;
-            esac
+        bestips=$(sed -n "2,$((count + 1))p" $IP_FILE | grep -v '^#' | awk -F, '{print $1}' | sed '/^$/d' | tr '\n' ' ')
+        first_dns_ip=$(echo "$bestips" | awk '{print $1}')
+        case "$first_dns_ip" in
+            *:*) bestip_is_ipv6=1 ;;
+            *) bestip_is_ipv6=0 ;;
+        esac
 
-            if [ -z "$bestips" ]; then
-                echolog "阿里云DNS写入失败: 未找到可写入IP"
-                return
-            fi
+        if [ -z "$bestips" ]; then
+            echolog "DNS写入失败: 未找到可写入IP"
+            return
+        fi
 
+        if [ "x${DNS_type}" == "xcloudflare" ] ;then
+            for sub in $sub_domain
+            do
+                if /usr/bin/cloudflarespeedtest/cfdns.sh "$app_key" "$app_secret" "$main_domain" "$sub" "$bestip_is_ipv6" "$cf_proxied" $bestips; then
+                    echolog "更新域名${sub} Cloudflare DNS完成，已写入IP: $bestips"
+                else
+                    echolog "更新域名${sub} Cloudflare DNS失败，请检查上方Cloudflare API错误信息"
+                fi
+                sleep 1s
+            done
+        elif [ "x${DNS_type}" == "xaliyun" ] ;then
             for sub in $sub_domain
             do
                 if /usr/bin/cloudflarespeedtest/aliddns.sh "$app_key" "$app_secret" "$main_domain" "$sub" "$line" "$bestip_is_ipv6" $bestips; then
@@ -706,7 +716,6 @@ function alidns_ip(){
                 sleep 1s
             done
         fi
-        echo "aliyun done"
     fi
 }
 
