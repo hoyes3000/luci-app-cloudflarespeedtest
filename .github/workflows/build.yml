@@ -12,6 +12,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve current snapshot SDK
+        id: snapsdk
+        shell: bash
+        run: |
+          base='https://downloads.openwrt.org/snapshots/targets/x86/64'
+          fallback='openwrt-sdk-x86-64_gcc-14.4.0_musl.Linux-x86_64.tar.zst'
+
+          sdk_file=$(curl -sSL --retry 3 --connect-timeout 30 "$base/sha256sums" \
+            | grep -oE 'openwrt-sdk-x86-64_[^[:space:]]+\.tar\.zst' | sort -u | head -n 1)
+
+          if [ -z "$sdk_file" ]; then
+            echo "::warning::Could not resolve the snapshot SDK from sha256sums, falling back to $fallback"
+            sdk_file="$fallback"
+          fi
+
+          echo "url=${base}/${sdk_file}" >> "$GITHUB_OUTPUT"
+          echo "Resolved snapshot SDK: ${base}/${sdk_file}"
+
       - name: Build LuCI Package
         id: build
         uses: stevenjoezhang/build-luci-app@v1
@@ -19,10 +37,10 @@ jobs:
           package: luci-app-cloudflarespeedtest
           sdk-url: https://archive.openwrt.org/releases/21.02.0/targets/x86/64/openwrt-sdk-21.02.0-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar.xz
           # profiles.json no longer carries an "sdk" map, so keep the
-          # auto-resolver disabled and pin the snapshot archive explicitly
-          # (rotate the gcc version whenever the old one 404s)
+          # auto-resolver of the action disabled and pass the URL resolved
+          # above; this survives OpenWrt rotating toolchain snapshots
           snapsdk-profiles-url: ''
-          snapsdk-url: https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-sdk-x86-64_gcc-14.4.0_musl.Linux-x86_64.tar.zst
+          snapsdk-url: ${{ steps.snapsdk.outputs.url }}
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
