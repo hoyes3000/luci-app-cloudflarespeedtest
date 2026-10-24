@@ -354,7 +354,8 @@ function speed_test(){
         if [ "${tp:-443}" -ne "443" ] ; then
             command="${command} -tp ${tp}"
         fi
-        if [ "${httping:-0}" -eq "1" ] ; then
+        # 地区码只能从 HTTP 探测的响应头里取到：填了地区码筛选就自动切到 HTTP 延迟测速
+        if [ "${httping:-0}" -eq "1" ] || [ -n "${cfcolo:-}" ] ; then
             command="${command} -httping"
             if [ -n "${cfcolo:-}" ] ; then
                 command="${command} -cfcolo ${cfcolo}"

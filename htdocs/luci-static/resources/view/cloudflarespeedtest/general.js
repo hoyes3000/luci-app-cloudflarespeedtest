@@ -453,11 +453,12 @@ return view.extend({
 		o.rmempty = true;
 		o.depends('advanced', '1');
 
-		o = s.taboption('advanced', form.Value, 'cfcolo', _('Cloudflare colo code'));
+		o = s.taboption('advanced', form.Value, 'cfcolo', _('Region code filter'),
+			_('Comma-separated Cloudflare colo codes, e.g. NRT,KIX,HKG. When set, HTTP latency test is enabled automatically (region codes are only visible to HTTP probes); after the latency phase only IPs in the listed regions are download tested.'));
 		o.datatype = 'string';
 		o.default = '';
 		o.rmempty = true;
-		o.depends('httping', '1');
+		o.depends('advanced', '1');
 
 		s = m.section(form.NamedSection, 'global', 'global', _('Best IP'));
 		s.addremove = false;

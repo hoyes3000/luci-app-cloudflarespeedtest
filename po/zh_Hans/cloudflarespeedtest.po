@@ -196,6 +196,12 @@ msgstr "使用 HTTP 测试延迟"
 msgid "Cloudflare colo code"
 msgstr "Cloudflare 机房 colo 代码"
 
+msgid "Region code filter"
+msgstr "地区码筛选"
+
+msgid "Comma-separated Cloudflare colo codes, e.g. NRT,KIX,HKG. When set, HTTP latency test is enabled automatically (region codes are only visible to HTTP probes); after the latency phase only IPs in the listed regions are download tested."
+msgstr "逗号分隔的 Cloudflare 机房码，例如 NRT,KIX,HKG。填写后自动启用 HTTP 延迟测速（地区码只能通过 HTTP 探测获取）；延迟测速结束后，仅对匹配地区的 IP 进行下载测速。"
+
 msgid "Not recommended"
 msgstr "不推荐"
 
