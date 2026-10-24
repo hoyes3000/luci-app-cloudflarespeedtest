@@ -355,7 +355,7 @@ return view.extend({
 		o.value('https://t2.geigei.gq', 't2.geigei.gq');
 
 		o = s.taboption('basic', form.ListValue, 'proxy_mode', _('Proxy mode'),
-			_('During speed tests, temporarily apply the selected proxy mode to supported proxy applications: ShadowSocksR Plus+, PassWall, PassWall2, Vssr, Bypass, HomeProxy, and OpenClash (CLOSE only).'));
+			_('During speed tests, temporarily apply the selected proxy mode to supported proxy applications: ShadowSocksR Plus+, PassWall, PassWall2, Vssr, Bypass, HomeProxy, OpenClash (CLOSE only), and Open-Box (CLOSE only).'));
 		o.value('nil', _('HOLD'));
 		o.value('gfw', _('GFW List'));
 		o.value('close', _('CLOSE'));

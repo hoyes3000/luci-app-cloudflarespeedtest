@@ -39,6 +39,7 @@ function appinit(){
     vssr_started='';
     homeproxy_started='';
     openclash_started='';
+    openbox_started='';
 }
 
 function homeproxy_client_active() {
@@ -128,6 +129,28 @@ function restore_openclash() {
         /etc/init.d/openclash start &>/dev/null
         echolog "OpenClash 重启完成"
     fi
+}
+
+# Open-Box 没有可切换的 uci 运行模式，仅支持测速期间临时关闭核心服务；
+# 它的 init 脚本 stop 自带安全清理（还原 dnsmasq、拆防火墙规则、保留面板通道）
+function prepare_openbox() {
+    [ "$proxy_mode" == "close" ] || return 0
+    [ -x /etc/init.d/openbox ] || return 0
+
+    ubus call service list '{"name":"openbox"}' 2>/dev/null | grep -q '"running":true' || return 0
+
+    openbox_started='1'
+    /etc/init.d/openbox stop &>/dev/null
+    echolog "Open-Box 已在测速期间临时关闭"
+}
+
+function restore_openbox() {
+    if [ "x${openbox_started}" != "x1" ] ;then
+        return 0
+    fi
+
+    /etc/init.d/openbox start &>/dev/null
+    echolog "Open-Box 重启完成"
 }
 
 check_wgetcurl(){
@@ -425,6 +448,7 @@ function speed_test(){
 
     prepare_homeproxy
     prepare_openclash
+    prepare_openbox
 
     echo $command >> $LOG_FILE 2>&1
     echolog "-----------start----------"
@@ -672,6 +696,7 @@ function restart_app(){
 
     restore_homeproxy
     restore_openclash
+    restore_openbox
 }
 
 function alidns_ip(){
