@@ -142,9 +142,6 @@ function prepare_openbox() {
     openbox_started='1'
     /etc/init.d/openbox stop &>/dev/null
     echolog "Open-Box 已在测速期间临时关闭"
-    # stop 会重启 dnsmasq、重载防火墙并拆除 tun 路由，网络需要几秒收敛；
-    # 不等一拍就开始测速会全部秒败（实测延迟阶段 0/256 可用）
-    sleep 10
 }
 
 function restore_openbox() {
@@ -452,6 +449,13 @@ function speed_test(){
     prepare_homeproxy
     prepare_openclash
     prepare_openbox
+
+    # 切换/关闭任何代理都会重建防火墙规则，部分还会重启 dnsmasq、拆除 tun 路由；
+    # 网络需要几秒收敛，不等一拍就开始测速可能大面积秒败（Open-Box 实测延迟阶段 0/256 可用）
+    if [ "x${ssr_started}" == "x1" ] || [ "x${passwall_started}" == "x1" ] || [ "x${passwall2_started}" == "x1" ] || [ "x${vssr_started}" == "x1" ] || [ "x${bypass_started}" == "x1" ] || [ "x${homeproxy_started}" == "x1" ] || [ "x${openclash_started}" == "x1" ] || [ "x${openbox_started}" == "x1" ] ;then
+        echolog "等待代理切换后的网络收敛（10s）"
+        sleep 10
+    fi
 
     echo $command >> $LOG_FILE 2>&1
     echolog "-----------start----------"
