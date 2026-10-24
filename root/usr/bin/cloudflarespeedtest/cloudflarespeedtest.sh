@@ -142,6 +142,9 @@ function prepare_openbox() {
     openbox_started='1'
     /etc/init.d/openbox stop &>/dev/null
     echolog "Open-Box 已在测速期间临时关闭"
+    # stop 会重启 dnsmasq、重载防火墙并拆除 tun 路由，网络需要几秒收敛；
+    # 不等一拍就开始测速会全部秒败（实测延迟阶段 0/256 可用）
+    sleep 10
 }
 
 function restore_openbox() {
