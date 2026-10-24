@@ -137,7 +137,7 @@ function prepare_openbox() {
     [ "$proxy_mode" == "close" ] || return 0
     [ -x /etc/init.d/openbox ] || return 0
 
-    ubus call service list '{"name":"openbox"}' 2>/dev/null | grep -q '"running":true' || return 0
+    ubus call service list '{"name":"openbox"}' 2>/dev/null | grep -q '"running"[[:space:]]*:[[:space:]]*true' || return 0
 
     openbox_started='1'
     /etc/init.d/openbox stop &>/dev/null
